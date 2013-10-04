@@ -1,0 +1,35 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4741
+
+DESCRIPTION
+This plugin can transform textual options (in the form FOO|BAR, as they are
+often found in templates or snippets) into a printed list or insert-mode
+completion, which offer all alternatives ("FOO" and "BAR" in this example),
+and allow to choose one and replace the full options block with it.
+
+USAGE
+q|                      List all individual alternatives in the text form
+                        close to the cursor and allow the user to choose one,
+                        which then replaces the full options block.
+{Visual}q|              List all individual alternatives in the selected text
+{Select}CTRL-X |        form and allow the user to choose one, which then
+                        replaces the selection.
+[count]q|               Replace the full options block / selection with the
+{Visual}[count]q|       [count]'th alternative from it.
+
+CTRL-X |                Convert the text form before the cursor into the
+                        individual alternatives and offer them for completion.
+
+SYNTAX
+The text forms can be in simple and extended syntax. The simple syntax is just
+a list of word characters (without whitespace!), delimited by | characters:
+    FOO|BAZ|QUUX
+You can include [], (), + and |, too, but you have to escape with a backslash.
+
+The extended syntax is bracketed by [...], and its alternatives can contain
+whitespace and any other characters.
+    [FOO+BAR|My BAZ|The QUUX!]
+Additionally, you can append an optional explanation to each alternative. This
+will only be shown in the completion menu, but is not inserted into the
+buffer. The explanation must be enclosed in (...) and comes after the
+alternative text, separated by a <Space>:
+    [FOO (default)|BAZ (softer)|QUUX (the special choice)]
