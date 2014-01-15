@@ -8,12 +8,17 @@
 "   - repeat.vim (vimscript #2136) autoload script (optional)
 "   - visualrepeat.vim (vimscript #3848) autoload script (optional)
 "
-" Copyright: (C) 2012-2013 Ingo Karkat
+" Copyright: (C) 2012-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.010	09-Jan-2014	Set change marks when replacing the text form
+"				with a match.
+"   1.10.009	28-Nov-2013	Cosmetics: Add one more padding between the
+"				number and the alternative in the query; looks
+"				better this way.
 "   1.00.008	04-Jul-2013	Factor out handling of selection to
 "				ingo#selection#position#Get().
 "				Handle linewise selected text forms.
@@ -71,11 +76,11 @@
 
 function! s:GetChoice( matches )
     echohl Title
-    echo ' # alternative'
+    echo ' #  alternative'
     echohl None
     for i in range(1, len(a:matches))
 	let l:explanation = get(a:matches[i - 1], 'menu', '')
-	echo printf('%2d %s', i, a:matches[i - 1].word)
+	echo printf('%2d  %s', i, a:matches[i - 1].word)
 	if ! empty(l:explanation)
 	    echohl Directory
 	    echon "\t" . l:explanation
@@ -90,6 +95,11 @@ endfunction
 function! s:ReplaceWithMatch( startCol, endCol, match )
     let l:line = getline('.')
     call setline('.', strpart(l:line, 0, a:startCol - 1) . a:match.word . matchstr(l:line, '\%>'.a:endCol.'c.*$'))    " Indices in strpart() are 0-based, columns in /\%c/ are 1-based.
+
+    " Set the change marks to the first and last character of the replaced
+    " match, like e.g. the "p" command.
+    call setpos("'[", [0, line('.'), a:startCol, 0])
+    call setpos("']", [0, line('.'), a:startCol + len(a:match.word) - 1, 0])
 endfunction
 function! TextFormComplete#Normal#ChooseAround( count )
     " Try before / at the cursor.

@@ -33,3 +33,9 @@ will only be shown in the completion menu, but is not inserted into the
 buffer. The explanation must be enclosed in (...) and comes after the
 alternative text, separated by a <Space>:
     [FOO (default)|BAZ (softer)|QUUX (the special choice)]
+
+Another form element is a slider where the active element # can be positioned
+anywhere on the linear measure ----- between the [...] stops.
+    [---#------]
+You can choose among all possible positions (indicated with their percentage
+ranges), and after that quickly adjust with CTRL-A / CTRL-X.

@@ -10,6 +10,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.009	04-Oct-2013	ENH: Add support for sliders [---#-----].
 "   1.00.008	04-Jul-2013	Don't add a single option to SwapIt.
 "				Allow to deselect a single [option] instead of
 "				just stupidly offering no choice.
@@ -117,10 +118,34 @@ function! TextFormComplete#Search( flags, ... )
     endif
     return [l:type, l:col]
 endfunction
+function! s:SliderStepMatch( width, step )
+    return {
+    \   'word': printf('[%s#%s]',
+    \       repeat('-', a:step),
+    \       repeat('-', a:width - a:step - 1),
+    \   ),
+    \   'menu': printf('%2d-%2d%%', 100 * a:step / a:width, 100 * (a:step + 1) / a:width)
+    \}
+endfunction
+function! s:MatchesForSlider( formText )
+    let l:formWidth = len(a:formText)   " Since # and - are in the ASCII range and always represented by a single byte, we can simply use the length for a character count.
+    return map(range(l:formWidth), 's:SliderStepMatch(l:formWidth, v:val)')
+endfunction
 function! TextFormComplete#Matches( formText )
-    let l:formText = (a:formText =~# '^\[.*]$' ? a:formText[1:-2] : a:formText) " Since [ and ] are in the ASCII range and always represented by a single byte, we can use simple array slicing to remove them.
-    let l:formItems = split(l:formText, s:unescaped.'|')
-    let l:matches = map(l:formItems, 's:FormItemToMatch(v:val)')
+    if a:formText =~# '^\[.*]$'
+	let l:isEnclosed = 1
+	let l:formText = a:formText[1:-2]   " Since [ and ] are in the ASCII range and always represented by a single byte, we can use simple array slicing to remove them.
+    else
+	let l:isEnclosed = 0
+	let l:formText = a:formText
+    endif
+
+    if l:isEnclosed && l:formText =~# '^\%(-*#-\+\|-\+#-*\)$'
+	let l:matches = s:MatchesForSlider(l:formText)
+    else
+	let l:formItems = split(l:formText, s:unescaped.'|')
+	let l:matches = map(l:formItems, 's:FormItemToMatch(v:val)')
+    endif
 
     if len(l:matches) == 1
 	" Allow to deselect a single [option] instead of just stupidly offering
